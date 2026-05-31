@@ -1,0 +1,11 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isSumOfConsecutive(int n) {
+        // A number can be expressed as sum of consecutive numbers
+        // if it is NOT a power of 2
+        return (n & (n - 1)) != 0;
+    }
+};
