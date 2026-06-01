@@ -1,0 +1,53 @@
+ class Solution {
+public:
+    long long findMaxProduct(vector<int>& arr) {
+        const long long MOD = 1000000007;
+
+        int n = arr.size();
+
+        if (n == 1)
+            return arr[0];
+
+        int negCount = 0, zeroCount = 0;
+        int maxNeg = -11;
+
+        long long prod = 1;
+
+        for (int x : arr) {
+            if (x == 0) {
+                zeroCount++;
+                continue;
+            }
+
+            if (x < 0) {
+                negCount++;
+                maxNeg = max(maxNeg, x); // negative closest to 0
+            }
+
+            prod = (prod * abs((long long)x)) % MOD;
+        }
+
+        if (zeroCount == n)
+            return 0;
+
+        if (negCount == 1 && zeroCount + negCount == n)
+            return 0;
+
+        if (negCount % 2 == 0)
+            return prod;
+
+        // Remove the negative closest to zero
+        long long inv = 1;
+        long long base = abs((long long)maxNeg);
+        long long power = MOD - 2;
+
+        while (power) {
+            if (power & 1)
+                inv = (inv * base) % MOD;
+            base = (base * base) % MOD;
+            power >>= 1;
+        }
+
+        return (prod * inv) % MOD;
+    }
+};
