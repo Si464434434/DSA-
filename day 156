@@ -1,0 +1,45 @@
+class Solution {
+public:
+    long long solve(vector<pair<int, int>>& first, vector<pair<int, int>>& second) {
+        sort(second.begin(), second.end());
+        int m = second.size();
+        
+        vector<int> minDur(m);
+        minDur[0] = second[0].second;
+        for (int i = 1; i < m; ++i) minDur[i] = min(minDur[i - 1], second[i].second);
+        
+        vector<long long> minEnd(m);
+        minEnd[m - 1] = (long long)second[m - 1].first + second[m - 1].second;
+        for (int i = m - 2; i >= 0; --i) 
+            minEnd[i] = min(minEnd[i + 1], (long long)second[i].first + second[i].second);
+        
+        long long minFinish = LLONG_MAX;
+        for (auto& ride : first) {
+            long long F = (long long)ride.first + ride.second;
+            
+            // Find index such that second[idx].startTime > F
+            auto it = upper_bound(second.begin(), second.end(), make_pair((int)F, 200000));
+            int idx = distance(second.begin(), it);
+            
+            // If there are rides that opened at or before F
+            if (idx > 0) {
+                minFinish = min(minFinish, F + minDur[idx - 1]);
+            }
+            // If there are rides that open after F
+            if (idx < m) {
+                minFinish = min(minFinish, minEnd[idx]);
+            }
+        }
+        return minFinish;
+    }
+
+    long long earliestFinishTime(vector<int>& landStartTime, vector<int>& landDuration, 
+                                 vector<int>& waterStartTime, vector<int>& waterDuration) {
+        int n = landStartTime.size(), m = waterStartTime.size();
+        vector<pair<int, int>> land(n), water(m);
+        for(int i=0; i<n; ++i) land[i] = {landStartTime[i], landDuration[i]};
+        for(int i=0; i<m; ++i) water[i] = {waterStartTime[i], waterDuration[i]};
+        
+        return min(solve(land, water), solve(water, land));
+    }
+};
