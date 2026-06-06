@@ -1,0 +1,28 @@
+168 class Solution {
+public:
+    vector<int> leftRightDifference(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> answer(n);
+        
+        long long totalSum = 0;
+        for (int x : nums) {
+            totalSum += x;
+        }
+        
+        long long leftSum = 0;
+        long long rightSum = totalSum;
+        
+        for (int i = 0; i < n; ++i) {
+            // Update rightSum to exclude the current element
+            rightSum -= nums[i];
+            
+            // Calculate absolute difference
+            answer[i] = abs((int)(leftSum - rightSum));
+            
+            // Update leftSum to include the current element for the next index
+            leftSum += nums[i];
+        }
+        
+        return answer;
+    }
+};
