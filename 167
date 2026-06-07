@@ -1,0 +1,20 @@
+class Solution {
+public:
+    string profession(int level, int pos) {
+        // Count how many 'Doctor' ancestors exist on the path to the root.
+        // If the total count is odd, current node is a Doctor, else Engineer.
+        int doctorCount = 0;
+        
+        // We look at (pos - 1) to use 0-based indexing for bit manipulation
+        // to count set bits (representing nodes where we took the 'second child' path).
+        int n = pos - 1;
+        while (n > 0) {
+            if (n % 2 == 1) {
+                doctorCount++;
+            }
+            n /= 2;
+        }
+        
+        return (doctorCount % 2 == 0) ? "Engineer" : "Doctor";
+    }
+};
