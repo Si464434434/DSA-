@@ -1,0 +1,18 @@
+class Solution {
+public:
+    long long maxTotalValue(vector<int>& nums, int k) {
+        // Find the global maximum and minimum in the array
+        int max_val = nums[0];
+        int min_val = nums[0];
+        
+        for (int num : nums) {
+            if (num > max_val) max_val = num;
+            if (num < min_val) min_val = num;
+        }
+        
+        // The maximum value a single subarray can contribute is (max_val - min_val).
+        // Since we can choose this subarray k times, multiply by k.
+        long long diff = (long long)max_val - min_val;
+        return diff * k;
+    }
+};
