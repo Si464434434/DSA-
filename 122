@@ -1,0 +1,57 @@
+ #include <vector>
+#include <queue>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+    int stMax[50005][17];
+    int stMin[50005][17];
+    int logs[50005];
+
+public:
+    long long maxTotalValue(vector<int>& nums, int k) {
+        int n = nums.size();
+        logs[1] = 0;
+        for (int i = 2; i <= n; i++) logs[i] = logs[i / 2] + 1;
+
+        for (int i = 0; i < n; i++) {
+            stMax[i][0] = nums[i];
+            stMin[i][0] = nums[i];
+        }
+
+        for (int j = 1; j < 17; j++) {
+            for (int i = 0; i + (1 << j) <= n; i++) {
+                stMax[i][j] = max(stMax[i][j - 1], stMax[i + (1 << (j - 1))][j - 1]);
+                stMin[i][j] = min(stMin[i][j - 1], stMin[i + (1 << (j - 1))][j - 1]);
+            }
+        }
+
+        auto query = [&](int l, int r) {
+            int j = logs[r - l + 1];
+            int mx = max(stMax[l][j], stMax[r - (1 << j) + 1][j]);
+            int mn = min(stMin[l][j], stMin[r - (1 << j) + 1][j]);
+            return (long long)mx - mn;
+        };
+
+        // Stores {value, l, r}
+        priority_queue<pair<long long, pair<int, int>>> pq;
+        for (int i = 0; i < n; i++) {
+            pq.push({query(i, n - 1), {i, n - 1}});
+        }
+
+        long long totalValue = 0;
+        for (int i = 0; i < k; i++) {
+            auto top = pq.top();
+            pq.pop();
+            totalValue += top.first;
+            int l = top.second.first;
+            int r = top.second.second;
+            if (r > l) {
+                pq.push({query(l, r - 1), {l, r - 1}});
+            }
+        }
+        return totalValue;
+    }
+};
