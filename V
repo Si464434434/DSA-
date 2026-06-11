@@ -1,0 +1,36 @@
+class Solution {
+public:
+    int findIndex(string &s) {
+        int n = s.length();
+        int total_closing = 0;
+        
+        // Step 1: Count total closing brackets in the string
+        for(char c : s) {
+            if(c == ')') {
+                total_closing++;
+            }
+        }
+        
+        int open_count = 0;
+        
+        // Step 2: Traverse to find the equal point
+        // We go up to n because the split can be at the very end
+        for(int k = 0; k <= n; k++) {
+            // Check if condition met: Open before k == Closing from k onwards
+            if(open_count == total_closing) {
+                return k;
+            }
+            
+            // Prepare for next position
+            if(k < n) {
+                if(s[k] == '(') {
+                    open_count++;
+                } else {
+                    total_closing--;
+                }
+            }
+        }
+        
+        return n;
+    }
+};
