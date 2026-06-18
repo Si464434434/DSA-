@@ -1,0 +1,19 @@
+class Solution {
+public:
+    double angleClock(int hour, int minutes) {
+        // Calculate the angle of the hour hand
+        // (hour % 12) treats 12 as 0. 
+        // Each hour is 30 degrees, plus 0.5 degrees per minute.
+        double h_angle = (hour % 12 + minutes / 60.0) * 30;
+        
+        // Calculate the angle of the minute hand
+        // Each minute is 6 degrees.
+        double m_angle = minutes * 6;
+        
+        // Find the absolute difference
+        double diff = abs(h_angle - m_angle);
+        
+        // Return the smaller angle
+        return min(diff, 360.0 - diff);
+    }
+};
