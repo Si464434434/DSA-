@@ -1,0 +1,29 @@
+class Solution {
+public:
+    vector<int> optimalArray(vector<int>& arr) {
+        int n = arr.size();
+        // Change result vector to int to match the expected return type
+        vector<int> result(n); 
+        vector<long long> pref(n + 1, 0);
+
+        for (int i = 0; i < n; ++i) {
+            pref[i + 1] = pref[i] + arr[i];
+        }
+
+        for (int i = 0; i < n; ++i) {
+            int mid_idx = i / 2;
+            long long median = arr[mid_idx];
+            
+            long long left_sum = pref[mid_idx + 1] - pref[0];
+            long long right_sum = pref[i + 1] - pref[mid_idx + 1];
+            
+            long long left_count = (mid_idx + 1);
+            long long right_count = (i - mid_idx);
+            
+            // Cast the final calculation to int to store in the result vector
+            result[i] = (int)((right_sum - right_count * median) + (left_count * median - left_sum));
+        }
+        
+        return result;
+    }
+};
