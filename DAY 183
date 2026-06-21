@@ -1,0 +1,30 @@
+class Solution {
+public:
+    int maxIceCream(vector<int>& costs, int coins) {
+        // Since 1 <= costs[i] <= 10^5, we use a frequency array
+        int max_cost = 100000;
+        vector<int> freq(max_cost + 1, 0);
+        
+        // Populate the frequency array
+        for (int cost : costs) {
+            freq[cost]++;
+        }
+        
+        int count = 0;
+        // Iterate from the cheapest to the most expensive
+        for (int i = 1; i <= max_cost; i++) {
+            if (freq[i] > 0) {
+                // Determine how many we can afford at this specific price
+                int can_buy = min(freq[i], coins / i);
+                
+                count += can_buy;
+                coins -= (can_buy * i);
+                
+                // If we can't afford any more of this price or higher, break
+                if (coins < i) break;
+            }
+        }
+        
+        return count;
+    }
+};
