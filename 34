@@ -1,0 +1,27 @@
+class Solution {
+public:
+    int countMajoritySubarrays(vector<int>& nums, int target) {
+        int n = nums.size();
+        int totalCount = 0;
+        
+        // Iterate through all possible starting points
+        for (int i = 0; i < n; ++i) {
+            int targetCount = 0;
+            // Iterate through all possible ending points
+            for (int j = i; j < n; ++j) {
+                if (nums[j] == target) {
+                    targetCount++;
+                }
+                
+                int subarrayLength = j - i + 1;
+                // Condition: target frequency > subarray length / 2
+                // Equivalent to: 2 * targetCount > subarrayLength
+                if (2 * targetCount > subarrayLength) {
+                    totalCount++;
+                }
+            }
+        }
+        
+        return totalCount;
+    }
+};
