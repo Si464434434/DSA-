@@ -1,0 +1,33 @@
+class Solution {
+public:
+    int countWays(string &s1, string &s2) {
+        int n = s1.size();
+        int m = s2.size();
+        int MOD = 1e9 + 7;
+        
+        // dp[i][j] means number of ways to form s2[0...i-1]
+        // using characters from s1[0...j-1]
+        vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+        
+        // Base case: An empty s2 is a subsequence of any prefix of s1 once 
+        // (the empty subsequence)
+        for (int j = 0; j <= n; j++) {
+            dp[0][j] = 1;
+        }
+        
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                // If characters match, we have two choices:
+                // 1. Use s1[j-1] to match s2[i-1]: add dp[i-1][j-1]
+                // 2. Skip s1[j-1]: add dp[i][j-1]
+                if (s2[i - 1] == s1[j - 1]) {
+                    dp[i][j] = (dp[i - 1][j - 1] + dp[i][j - 1]) % MOD;
+                } else {
+                    // Must skip s1[j-1]
+                    dp[i][j] = dp[i][j - 1];
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
