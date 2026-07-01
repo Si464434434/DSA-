@@ -1,0 +1,13 @@
+ class Solution {
+public:
+    int numOfStrings(vector<string>& patterns, string word) {
+        int count = 0;
+        for (const string& pattern : patterns) {
+            // Check if pattern exists as a substring in word
+            if (word.find(pattern) != string::npos) {
+                count++;
+            }
+        }
+        return count;
+    }
+};
