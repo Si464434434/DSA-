@@ -1,0 +1,75 @@
+class Solution {
+public:
+    bool check(int mid, int n, long long k,
+               vector<vector<pair<int,int>>> &adj) {
+
+        const long long INF = 1e18;
+        vector<long long> dist(n, INF);
+
+        priority_queue<pair<long long,int>,
+                       vector<pair<long long,int>>,
+                       greater<pair<long long,int>>> pq;
+
+        dist[0] = 0;
+        pq.push({0, 0});
+
+        while (!pq.empty()) {
+            auto [d, u] = pq.top();
+            pq.pop();
+
+            if (d != dist[u]) continue;
+
+            for (auto &[v, w] : adj[u]) {
+                if (w < mid) continue;
+
+                if (dist[v] > d + w) {
+                    dist[v] = d + w;
+                    pq.push({dist[v], v});
+                }
+            }
+        }
+
+        return dist[n - 1] <= k;
+    }
+
+    int findMaxPathScore(vector<vector<int>>& edges,
+                         vector<bool>& online,
+                         long long k) {
+
+        int n = online.size();
+
+        if (!online[0] || !online[n - 1])
+            return -1;
+
+        vector<vector<pair<int,int>>> adj(n);
+
+        int mx = 0;
+
+        for (auto &e : edges) {
+            int u = e[0];
+            int v = e[1];
+            int w = e[2];
+
+            if (online[u] && online[v]) {
+                adj[u].push_back({v, w});
+                mx = max(mx, w);
+            }
+        }
+
+        int lo = 0, hi = mx;
+        int ans = -1;
+
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+
+            if (check(mid, n, k, adj)) {
+                ans = mid;
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+
+        return ans;
+    }
+};
