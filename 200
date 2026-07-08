@@ -1,0 +1,52 @@
+class Solution {
+public:
+    vector<int> sumAndMultiply(string s, vector<vector<int>>& queries) {
+        int n = s.length();
+        int MOD = 1e9 + 7;
+        
+        // Precompute non-zero digits, their prefix sums, and positions
+        vector<int> nz_idx;
+        vector<long long> nz_sum(1, 0);
+        vector<long long> nz_val(1, 0); // For concatenation
+        vector<long long> pow10(n + 1);
+        
+        pow10[0] = 1;
+        for (int i = 0; i < n; ++i) {
+            pow10[i + 1] = (pow10[i] * 10) % MOD;
+            if (s[i] != '0') {
+                nz_idx.push_back(i);
+                nz_sum.push_back((nz_sum.back() + (s[i] - '0')) % MOD);
+                nz_val.push_back((nz_val.back() * 10 + (s[i] - '0')) % MOD);
+            }
+        }
+        
+        vector<int> results;
+        for (const auto& q : queries) {
+            int l = q[0], r = q[1];
+            
+            // Find range of non-zero digits within [l, r]
+            auto it_start = lower_bound(nz_idx.begin(), nz_idx.end(), l);
+            auto it_end = upper_bound(nz_idx.begin(), nz_idx.end(), r);
+            
+            if (it_start == it_end) {
+                results.push_back(0);
+                continue;
+            }
+            
+            int start_pos = distance(nz_idx.begin(), it_start);
+            int end_pos = distance(nz_idx.begin(), it_end);
+            int count = end_pos - start_pos;
+            
+            // Sum of digits
+            long long current_sum = (nz_sum[end_pos] - nz_sum[start_pos] + MOD) % MOD;
+            
+            // Concatenated value x
+            // Extract using prefix values: val[end] - val[start] * 10^(len)
+            long long x = (nz_val[end_pos] - (nz_val[start_pos] * pow10[count]) % MOD + MOD) % MOD;
+            
+            results.push_back((x * current_sum) % MOD);
+        }
+        
+        return results;
+    }
+};
