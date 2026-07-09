@@ -1,0 +1,29 @@
+class Solution {
+public:
+    vector<bool> pathExistenceQueries(int n, vector<int>& nums, int maxDiff, vector<vector<int>>& queries) {
+        if (n == 0) return {};
+        
+        // componentID[i] will store the ID of the connected component node i belongs to
+        vector<int> componentID(n);
+        int currentID = 0;
+        componentID[0] = 0;
+        
+        // Because nums is sorted, we only need to check adjacent elements
+        for (int i = 1; i < n; ++i) {
+            if (nums[i] - nums[i - 1] > maxDiff) {
+                currentID++;
+            }
+            componentID[i] = currentID;
+        }
+        
+        vector<bool> result;
+        result.reserve(queries.size());
+        
+        // A path exists if and only if both nodes are in the same component
+        for (const auto& q : queries) {
+            result.push_back(componentID[q[0]] == componentID[q[1]]);
+        }
+        
+        return result;
+    }
+};
