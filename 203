@@ -1,0 +1,48 @@
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int longestPath(vector<vector<int>>& mat, int xs, int ys, int xd, int yd) {
+        int n = mat.size();
+        int m = mat[0].size();
+        
+        // If source or destination is blocked, no path exists
+        if (mat[xs][ys] == 0 || mat[xd][yd] == 0) return -1;
+        
+        int maxLen = -1;
+        solve(mat, xs, ys, xd, yd, 0, maxLen, n, m);
+        return maxLen;
+    }
+
+private:
+    void solve(vector<vector<int>>& mat, int x, int y, int xd, int yd, int currentDist, int& maxLen, int n, int m) {
+        // Base case: Reached destination
+        if (x == xd && y == yd) {
+            maxLen = max(maxLen, currentDist);
+            return;
+        }
+        
+        // Mark current cell as visited (temporarily block it)
+        mat[x][y] = 0;
+        
+        // Possible movements: Up, Down, Left, Right
+        int dx[] = {-1, 1, 0, 0};
+        int dy[] = {0, 0, -1, 1};
+        
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            
+            // Check boundary conditions and if the next cell is traversable
+            if (nx >= 0 && nx < n && ny >= 0 && ny < m && mat[nx][ny] == 1) {
+                solve(mat, nx, ny, xd, yd, currentDist + 1, maxLen, n, m);
+            }
+        }
+        
+        // Backtrack: Unmark the cell so it can be used in other paths
+        mat[x][y] = 1;
+    }
+};
