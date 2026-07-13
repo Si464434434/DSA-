@@ -1,0 +1,30 @@
+#include <vector>
+#include <string>
+#include <algorithm>
+
+class Solution {
+public:
+    std::vector<int> sequentialDigits(int low, int high) {
+        std::vector<int> result;
+        
+        // Start a sequential number with each digit from 1 to 8
+        for (int i = 1; i <= 9; ++i) {
+            int num = i;
+            for (int nextDigit = i + 1; nextDigit <= 9; ++nextDigit) {
+                num = num * 10 + nextDigit;
+                
+                // If within range, add to results
+                if (num >= low && num <= high) {
+                    result.push_back(num);
+                }
+                
+                // Optimization: If it exceeds high, stop for this starting digit
+                if (num > high) break;
+            }
+        }
+        
+        // Sort the results before returning
+        std::sort(result.begin(), result.end());
+        return result;
+    }
+};
