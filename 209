@@ -1,0 +1,50 @@
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        int max_val = 0;
+        for (int x : nums) max_val = max(max_val, x);
+        
+        vector<int> freq(max_val + 1, 0);
+        for (int x : nums) freq[x]++;
+        
+        // Count of pairs with GCD exactly i
+        vector<long long> count_gcd(max_val + 1, 0);
+        
+        // Iterate backwards to use inclusion-exclusion
+        for (int i = max_val; i >= 1; --i) {
+            long long multiples = 0;
+            for (int j = i; j <= max_val; j += i) {
+                multiples += freq[j];
+            }
+            
+            // Total pairs where both numbers are multiples of i
+            long long pairs = multiples * (multiples - 1) / 2;
+            
+            // Subtract pairs where the GCD is a multiple of i (2i, 3i, ...)
+            for (int j = 2 * i; j <= max_val; j += i) {
+                pairs -= count_gcd[j];
+            }
+            count_gcd[i] = pairs;
+        }
+        
+        // Build a prefix sum array of counts to support binary search
+        vector<long long> prefix_sum(max_val + 1, 0);
+        for (int i = 1; i <= max_val; ++i) {
+            prefix_sum[i] = prefix_sum[i - 1] + count_gcd[i];
+        }
+        
+        vector<int> results;
+        for (long long q : queries) {
+            // Find the first GCD value where the cumulative count > q
+            auto it = upper_bound(prefix_sum.begin(), prefix_sum.end(), q);
+            results.push_back(distance(prefix_sum.begin(), it));
+        }
+        
+        return results;
+    }
+};
