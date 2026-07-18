@@ -1,0 +1,52 @@
+class Solution {
+public:
+    static const int MOD = 1000000007;
+
+    int findWays(vector<vector<int>>& matrix, int k) {
+        int n = matrix.size(), m = matrix[0].size();
+
+        vector<vector<int>> pre(n + 1, vector<int>(m + 1, 0));
+
+        // Suffix sum
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                pre[i][j] = matrix[i][j] + pre[i + 1][j] + pre[i][j + 1] - pre[i + 1][j + 1];
+            }
+        }
+
+        vector<vector<int>> dp(n, vector<int>(m, 0));
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < m; j++)
+                dp[i][j] = (pre[i][j] > 0);
+
+        for (int cut = 2; cut <= k; cut++) {
+            vector<vector<int>> ndp(n, vector<int>(m, 0));
+
+            for (int i = n - 1; i >= 0; i--) {
+                for (int j = m - 1; j >= 0; j--) {
+
+                    long long ways = 0;
+
+                    // Horizontal cuts
+                    for (int r = i + 1; r < n; r++) {
+                        if (pre[i][j] > pre[r][j])
+                            ways += dp[r][j];
+                    }
+
+                    // Vertical cuts
+                    for (int c = j + 1; c < m; c++) {
+                        if (pre[i][j] > pre[i][c])
+                            ways += dp[i][c];
+                    }
+
+                    ndp[i][j] = ways % MOD;
+                }
+            }
+
+            dp = move(ndp);
+        }
+
+        return dp[0][0];
+    }
+};
