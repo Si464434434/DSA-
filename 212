@@ -1,0 +1,19 @@
+class Solution:
+    def shiftGrid(self, grid, k):
+        m = len(grid)
+        n = len(grid[0])
+        total_elements = m * n
+        k = k % total_elements
+        
+        # Flatten the 2D grid into a 1D list
+        flat_grid = [element for row in grid for element in row]
+        
+        # Shift the 1D list using slicing
+        shifted_flat = flat_grid[-k:] + flat_grid[:-k]
+        
+        # Reconstruct the 2D grid
+        result = []
+        for i in range(m):
+            result.append(shifted_flat[i * n : (i + 1) * n])
+            
+        return result
