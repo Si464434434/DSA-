@@ -1,0 +1,28 @@
+class Solution {
+  public:
+    bool canRepresentBST(vector<int> &arr) {
+        stack<int> s;
+        // Initialize the root of the right subtree as minimum possible value
+        int root = INT_MIN;
+
+        for (int i = 0; i < arr.size(); i++) {
+            // If we find a node smaller than the current root of the right subtree, 
+            // it violates the BST property (a left child cannot appear after the right subtree starts).
+            if (arr[i] < root) {
+                return false;
+            }
+
+            // If arr[i] is greater than the top of the stack, 
+            // it means we are moving to a right child. Pop elements and 
+            // update the root until we find the correct parent.
+            while (!s.empty() && s.top() < arr[i]) {
+                root = s.top();
+                s.pop();
+            }
+
+            // Push the current element onto the stack
+            s.push(arr[i]);
+        }
+        return true;
+    }
+};
