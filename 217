@@ -1,0 +1,24 @@
+class Solution {
+public:
+    int maxProduct(int n) {
+        string s = to_string(n);
+        int maxProd = 0;
+        int len = s.length();
+        
+        for (int i = 0; i < len; ++i) {
+            for (int j = i + 1; j < len; ++j) {
+                int prod = (s[i] - '0') * (s[j] - '0');
+                maxProd = max(maxProd, prod);
+            }
+        }
+        
+        // If n has duplicate digits that can form pairs (handled by index combinations), 
+        // also check if any single digit can be multiplied by itself if it appears more than once.
+        // Wait, the loops above cover all pairs of indices (i < j), but the problem states:
+        // "You may use the same digit twice if it appears more than once in n."
+        // Since i < j ensures distinct indices, if a digit appears multiple times, 
+        // its occurrences at different indices will be paired together by the loops!
+        
+        return maxProd;
+    }
+};
