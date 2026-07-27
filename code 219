@@ -1,0 +1,56 @@
+ #include <bits/stdc++.h>
+using namespace std;
+
+int bpm(int u, vector<vector<int>> &adj, vector<int> &matchR, vector<int> &seen) {
+    for (int v : adj[u]) {
+        if (!seen[v]) {
+            seen[v] = 1;
+            if (matchR[v] == -1 || bpm(matchR[v], adj, matchR, seen)) {
+                matchR[v] = u;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int T;
+    cin >> T;
+
+    while (T--) {
+        int N, K;
+        cin >> N >> K;
+
+        vector<int> val(N + 1);
+
+        for (int i = 1; i <= N; i++)
+            cin >> val[i];
+
+        vector<vector<int>> adj(N + 1);
+
+        // Edge i -> j if j can be solved after i
+        for (int i = 1; i <= N; i++) {
+            for (int j = i + 1; j <= N; j++) {
+                if (abs(val[j] - val[i]) >= K)
+                    adj[i].push_back(j);
+            }
+        }
+
+        vector<int> matchR(N + 1, -1);
+        int matching = 0;
+
+        for (int i = 1; i <= N; i++) {
+            vector<int> seen(N + 1, 0);
+            if (bpm(i, adj, matchR, seen))
+                matching++;
+        }
+
+        cout << N - matching << "\n";
+    }
+
+    return 0;
+}
