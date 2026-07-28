@@ -1,0 +1,39 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+
+class Solution {
+public:
+    std::string smallestPalindrome(std::string s) {
+        // Count frequencies of each character from 'a' to 'z'
+        std::vector<int> count(26, 0);
+        for (char c : s) {
+            count[c - 'a']++;
+        }
+        
+        std::string half = "";
+        char middle_char = '\0';
+        
+        // Construct the first half lexicographically by using half of the counts
+        for (int i = 0; i < 26; ++i) {
+            if (count[i] > 0) {
+                // If there is an odd count, the middle character of the palindrome takes one instance
+                if (count[i] % 2 != 0) {
+                    middle_char = (char)('a' + i);
+                }
+                // Append half of the occurrences to our half-string
+                half.append(count[i] / 2, (char)('a' + i));
+            }
+        }
+        
+        // The palindrome consists of: (first half) + (middle character if any) + (reversed first half)
+        std::string rev_half = half;
+        std::reverse(rev_half.begin(), rev_half.end());
+        
+        if (middle_char != '\0') {
+            return half + middle_char + rev_half;
+        } else {
+            return half + rev_half;
+        }
+    }
+};
