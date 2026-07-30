@@ -1,0 +1,47 @@
+class Solution {
+public:
+    int maxSubsetXOR(vector<int>& arr) {
+        int index = 0;
+        int n = arr.size();
+        
+        // Traverse through all bits from the most significant bit to 0
+        for (int i = 30; i >= 0; --i) {
+            // Find the element with the i-th bit set
+            int maxInd = index;
+            int maxVal = INT_MIN;
+            
+            for (int j = index; j < n; ++j) {
+                if ((arr[j] & (1 << i)) != 0 && arr[j] > maxVal) {
+                    maxVal = arr[j];
+                    maxInd = j;
+                }
+            }
+            
+            // If no element has the i-th bit set, continue to the next bit
+            if (maxVal == INT_MIN) {
+                continue;
+            }
+            
+            // Swap the found element with the element at 'index'
+            swap(arr[index], arr[maxInd]);
+            
+            // XOR this element with all other elements to clear the i-th bit
+            for (int j = 0; j < n; ++j) {
+                if (j != index && (arr[j] & (1 << i)) != 0) {
+                    arr[j] ^= arr[index];
+                }
+            }
+            
+            // Increment index of chosen elements
+            index++;
+        }
+        
+        // The maximum XOR sum will be the XOR sum of all elements in the basis
+        int maxResult = 0;
+        for (int i = 0; i < n; ++i) {
+            maxResult ^= arr[i];
+        }
+        
+        return maxResult;
+    }
+};
