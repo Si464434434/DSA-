@@ -1,0 +1,21 @@
+class Solution {
+private:
+    int memo[501][501];
+    
+    int dfs(int i, int j, const vector<int>& piles) {
+        if (i > j) return 0;
+        if (memo[i][j] != -1) return memo[i][j];
+        
+        // Choose either the left pile or the right pile and subtract the opponent's optimal result
+        int takeLeft = piles[i] - dfs(i + 1, j, piles);
+        int takeRight = piles[j] - dfs(i, j - 1, piles);
+        
+        return memo[i][j] = max(takeLeft, takeRight);
+    }
+
+public:
+    bool stoneGame(vector<int>& piles) {
+        memset(memo, -1, sizeof(memo));
+        return dfs(0, piles.size() - 1, piles) > 0;
+    }
+};
