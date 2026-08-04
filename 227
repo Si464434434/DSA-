@@ -1,0 +1,25 @@
+class Solution {
+public:
+    vector<int> findMissingElements(vector<int>& nums) {
+        int min_val = nums[0], max_val = nums[0];
+        
+        // Find the minimum and maximum elements in the array
+        for (int num : nums) {
+            min_val = min(min_val, num);
+            max_val = max(max_val, num);
+        }
+        
+        // Use an unordered_set for $O(1)$ lookups
+        unordered_set<int> num_set(nums.begin(), nums.end());
+        vector<int> missing;
+        
+        // Iterate through the full range from min_val to max_val
+        for (int i = min_val; i <= max_val; ++i) {
+            if (num_set.find(i) == num_set.end()) {
+                missing.push_back(i);
+            }
+        }
+        
+        return missing;
+    }
+};
