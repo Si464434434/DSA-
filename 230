@@ -1,0 +1,302 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    // t <= 1e14
+    // Maximum powers:
+    // 2^46, 3^29, 5^20, 7^16
+    int dp[47][30][21][17];
+
+    int need[4];
+
+    // prime factors of digits 0..9
+    // 2, 3, 5, 7
+    int f[10][4] = {
+        {0,0,0,0}, // 0
+        {0,0,0,0}, // 1
+        {1,0,0,0}, // 2
+        {0,1,0,0}, // 3
+        {2,0,0,0}, // 4
+        {0,0,1,0}, // 5
+        {1,1,0,0}, // 6
+        {0,0,0,1}, // 7
+        {3,0,0,0}, // 8
+        {0,2,0,0}  // 9
+    };
+
+    // Minimum number of digits required to provide
+    // at least a,b,c,d factors.
+    int minDigits(int a, int b, int c, int d) {
+
+        if (a == 0 && b == 0 && c == 0 && d == 0)
+            return 0;
+
+        int &res = dp[a][b][c][d];
+
+        if (res != -1)
+            return res;
+
+        res = 1000000000;
+
+        for (int x = 2; x <= 9; x++) {
+
+            int na = max(0, a - f[x][0]);
+            int nb = max(0, b - f[x][1]);
+            int nc = max(0, c - f[x][2]);
+            int nd = max(0, d - f[x][3]);
+
+            res = min(
+                res,
+                1 + minDigits(na, nb, nc, nd)
+            );
+        }
+
+        return res;
+    }
+
+    // Build smallest zero-free number of exactly len digits.
+    string build(int len, int a, int b, int c, int d) {
+
+        string ans;
+        ans.reserve(len);
+
+        for (int pos = 0; pos < len; pos++) {
+
+            int remaining = len - pos - 1;
+
+            for (int digit = 1; digit <= 9; digit++) {
+
+                int na = max(0, a - f[digit][0]);
+                int nb = max(0, b - f[digit][1]);
+                int nc = max(0, c - f[digit][2]);
+                int nd = max(0, d - f[digit][3]);
+
+                if (minDigits(na, nb, nc, nd) <= remaining) {
+
+                    ans.push_back(char('0' + digit));
+
+                    a = na;
+                    b = nb;
+                    c = nc;
+                    d = nd;
+
+                    break;
+                }
+            }
+        }
+
+        return ans;
+    }
+
+    string smallestNumber(string num, long long t) {
+
+        int n = num.size();
+
+        // ------------------------------------------
+        // 1. Factorize t
+        // ------------------------------------------
+
+        memset(need, 0, sizeof(need));
+
+        while (t % 2 == 0) {
+            need[0]++;
+            t /= 2;
+        }
+
+        while (t % 3 == 0) {
+            need[1]++;
+            t /= 3;
+        }
+
+        while (t % 5 == 0) {
+            need[2]++;
+            t /= 5;
+        }
+
+        while (t % 7 == 0) {
+            need[3]++;
+            t /= 7;
+        }
+
+        // Any remaining prime factor cannot be obtained
+        // from digits 1..9.
+        if (t != 1)
+            return "-1";
+
+        // ------------------------------------------
+        // 2. Check if num itself is valid
+        // ------------------------------------------
+
+        bool zeroFree = true;
+
+        int have[4] = {0, 0, 0, 0};
+
+        for (char ch : num) {
+
+            int digit = ch - '0';
+
+            if (digit == 0) {
+                zeroFree = false;
+                break;
+            }
+
+            have[0] += f[digit][0];
+            have[1] += f[digit][1];
+            have[2] += f[digit][2];
+            have[3] += f[digit][3];
+        }
+
+        if (zeroFree &&
+            have[0] >= need[0] &&
+            have[1] >= need[1] &&
+            have[2] >= need[2] &&
+            have[3] >= need[3]) {
+
+            return num;
+        }
+
+        // ------------------------------------------
+        // 3. DP initialization
+        // ------------------------------------------
+
+        memset(dp, -1, sizeof(dp));
+
+        int minLen = minDigits(
+            need[0],
+            need[1],
+            need[2],
+            need[3]
+        );
+
+        // ------------------------------------------
+        // 4. If minimum length itself is > n
+        // ------------------------------------------
+
+        if (minLen > n) {
+
+            return build(
+                minLen,
+                need[0],
+                need[1],
+                need[2],
+                need[3]
+            );
+        }
+
+        // ------------------------------------------
+        // 5. Prefix factor counts
+        // ------------------------------------------
+
+        vector<array<int,4>> pref(n + 1);
+
+        pref[0] = {0, 0, 0, 0};
+
+        // First zero position.
+        // If there is no zero, keep n.
+        int firstZero = n;
+
+        for (int i = 0; i < n; i++) {
+
+            pref[i + 1] = pref[i];
+
+            int digit = num[i] - '0';
+
+            if (digit == 0) {
+
+                if (firstZero == n)
+                    firstZero = i;
+
+            } else {
+
+                pref[i + 1][0] += f[digit][0];
+                pref[i + 1][1] += f[digit][1];
+                pref[i + 1][2] += f[digit][2];
+                pref[i + 1][3] += f[digit][3];
+            }
+        }
+
+        // ------------------------------------------
+        // 6. Same length answer
+        // ------------------------------------------
+
+        /*
+            We need to make the number strictly larger
+            at some position.
+
+            Prefix before that position must be zero-free.
+
+            Therefore:
+            i <= firstZero
+
+            If i == firstZero, we replace zero with 1..9.
+        */
+
+        for (int i = n - 1; i >= 0; i--) {
+
+            // Prefix [0 ... i-1] must contain no zero.
+            if (i > firstZero)
+                continue;
+
+            int original = num[i] - '0';
+
+            // Try smallest possible increased digit.
+            for (int digit = original + 1;
+                 digit <= 9;
+                 digit++) {
+
+                int a = pref[i][0] + f[digit][0];
+                int b = pref[i][1] + f[digit][1];
+                int c = pref[i][2] + f[digit][2];
+                int d = pref[i][3] + f[digit][3];
+
+                int ra = max(0, need[0] - a);
+                int rb = max(0, need[1] - b);
+                int rc = max(0, need[2] - c);
+                int rd = max(0, need[3] - d);
+
+                int remaining = n - i - 1;
+
+                if (minDigits(
+                        ra,
+                        rb,
+                        rc,
+                        rd
+                    ) <= remaining) {
+
+                    string ans;
+                    ans.reserve(n);
+
+                    // Prefix
+                    ans.append(num, 0, i);
+
+                    // Increased digit
+                    ans.push_back(char('0' + digit));
+
+                    // Smallest valid suffix
+                    ans += build(
+                        remaining,
+                        ra,
+                        rb,
+                        rc,
+                        rd
+                    );
+
+                    return ans;
+                }
+            }
+        }
+
+        // ------------------------------------------
+        // 7. No valid number with same length
+        // ------------------------------------------
+
+        return build(
+            n + 1,
+            need[0],
+            need[1],
+            need[2],
+            need[3]
+        );
+    }
+};
