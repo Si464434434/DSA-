@@ -1,0 +1,23 @@
+#include <vector>
+
+class Solution {
+public:
+    bool winnerSquareGame(int n) {
+        // dp[i] will be true if the current player can win with i stones, else false.
+        std::vector<bool> dp(n + 1, false);
+        
+        for (int i = 1; i <= n; ++i) {
+            // Try all possible square moves k*k <= i
+            for (int k = 1; k * k <= i; ++k) {
+                // If moving to the state (i - k*k) results in a loss for the opponent,
+                // then the current player wins from state i.
+                if (!dp[i - k * k]) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+        
+        return dp[n];
+    }
+};
