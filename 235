@@ -1,0 +1,65 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+// Function to find maximum bipartite matching using DFS
+bool dfs(int u, const vector<vector<int>>& adj, vector<int>& match, vector<bool>& visited) {
+    for (int v : adj[u]) {
+        if (!visited[v]) {
+            visited[v] = true;
+            if (match[v] < 0 || dfs(match[v], adj, match, visited)) {
+                match[v] = u;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int problemSolving(int k, vector<int> v) {
+    int n = v.size();
+    vector<vector<int>> adj(n);
+    
+    // Build the DAG: an edge exists from i to j if i < j and |v[i] - v[j]| >= k
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (abs(v[i] - v[j]) >= k) {
+                adj[i].push_back(j);
+            }
+        }
+    }
+    
+    // Hopcroft-Karp / Kuhn's algorithm for Maximum Bipartite Matching
+    vector<int> match(n, -1);
+    int max_matching = 0;
+    
+    for (int i = 0; i < n; ++i) {
+        vector<bool> visited(n, false);
+        if (dfs(i, adj, match, visited)) {
+            max_matching++;
+        }
+    }
+    
+    // Minimum days required = Total problems - Maximum Matching
+    return n - max_matching;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int t;
+    if (!(cin >> t)) return 0;
+    
+    while (t--) {
+        int n, k;
+        cin >> n >> k;
+        vector<int> v(n);
+        for (int i = 0; i < n; ++i) {
+            cin >> v[i];
+        }
+        cout << problemSolving(k, v) << "\n";
+    }
+    
+    return 0;
+}
