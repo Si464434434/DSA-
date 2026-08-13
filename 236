@@ -1,0 +1,78 @@
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+private:
+    struct SegNode {
+        int left_len, right_len, max_len;
+        char l_char, r_char;
+        int total_len;
+    };
+    
+    vector<SegNode> st;
+
+    SegNode merge(SegNode left, SegNode right) {
+        SegNode res;
+        res.l_char = left.l_char;
+        res.r_char = right.r_char;
+        res.total_len = left.total_len + right.total_len;
+
+        res.max_len = max(left.max_len, right.max_len);
+        res.left_len = left.left_len;
+        res.right_len = right.right_len;
+
+        if (left.r_char == right.l_char) {
+            res.max_len = max(res.max_len, left.right_len + right.left_len);
+            if (left.left_len == left.total_len) {
+                res.left_len = left.total_len + right.left_len;
+            }
+            if (right.right_len == right.total_len) {
+                res.right_len = right.total_len + left.right_len;
+            }
+        }
+        return res;
+    }
+
+    void buildTree(int node, int start, int end, const string& s) {
+        if (start == end) {
+            st[node] = {1, 1, 1, s[start], s[start], 1};
+            return;
+        }
+        int mid = start + (end - start) / 2;
+        buildTree(2 * node, start, mid, s);
+        buildTree(2 * node + 1, mid + 1, end, s);
+        st[node] = merge(st[2 * node], st[2 * node + 1]);
+    }
+
+    void updateTree(int node, int start, int end, int idx, char c) {
+        if (start == end) {
+            st[node] = {1, 1, 1, c, c, 1};
+            return;
+        }
+        int mid = start + (end - start) / 2;
+        if (idx <= mid) {
+            updateTree(2 * node, start, mid, idx, c);
+        } else {
+            updateTree(2 * node + 1, mid + 1, end, idx, c);
+        }
+        st[node] = merge(st[2 * node], st[2 * node + 1]);
+    }
+
+public:
+    vector<int> longestRepeating(string s, string queryCharacters, vector<int>& queryIndices) {
+        int n = s.length();
+        st.resize(4 * n);
+        buildTree(1, 0, n - 1, s);
+
+        vector<int> ans;
+        int k = queryCharacters.length();
+        for (int i = 0; i < k; ++i) {
+            updateTree(1, 0, n - 1, queryIndices[i], queryCharacters[i]);
+            ans.push_back(st[1].max_len);
+        }
+        return ans;
+    }
+};
