@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+    long long dp[12][2][2];
+    string s;
+    int d;
+
+    long long solve(int pos, int tight, int has_started) {
+        if (pos == s.size()) {
+            return has_started ? 1 : 0;
+        }
+        
+        if (dp[pos][tight][has_started] != -1) 
+            return dp[pos][tight][has_started];
+        
+        long long res = 0;
+        int limit = tight ? s[pos] - '0' : 9;
+        
+        for (int digit = 0; digit <= limit; digit++) {
+            // If the number has started and the current digit matches d, skip it
+            if (has_started && digit == d) continue;
+            
+            // If the number hasn't started and we place '0', it remains unstarted (leading zero).
+            // If we place a non-zero digit, the number starts unless that digit is d.
+            int next_has_started = has_started || (digit != 0);
+            
+            // If we placed 'd' as the first non-zero digit, check if it equals d
+            if (!has_started && digit != 0 && digit == d) {
+                continue; // Skip if the first active digit is d
+            }
+            
+            int next_tight = tight && (digit == limit);
+            res += solve(pos + 1, next_tight, next_has_started);
+        }
+        
+        return dp[pos][tight][has_started] = res;
+    }
+
+public:
+    long long countWithout(long long n, int digit) {
+        s = to_string(n);
+        d = digit;
+        memset(dp, -1, sizeof(dp));
+        return solve(0, 1, 0);
+    }
+};
