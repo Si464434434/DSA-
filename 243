@@ -1,0 +1,19 @@
+class Solution {
+public:
+    int findMax(int n, vector<int>& a, vector<int>& b, vector<int>& k) {
+        // Create a difference array of size n + 1 to handle range updates in O(1)
+        vector<int> diff(n + 1, 0);
+        
+        int m = a.size();
+        for (int i = 0; i < m; ++i) {
+            diff[a[i]] += k[i];
+            if (b[i] + 1 < n) {
+                diff[b[i] + 1] -= k[i];
+            }
+        }
+        
+        int max_val = 0;
+        int current_val = 0;
+        
+        // Compute prefix sums and find the maximum element
+        for (int i = 0; i < n; ++i) {
