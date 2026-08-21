@@ -1,0 +1,84 @@
+class Solution {
+public:
+    long long findKthSmallest(vector<int>& coins, int k) {
+        // Optimization: Remove multiples and sort
+        set<int> unique_coins(coins.begin(), coins.end());
+        vector<int> filtered_coins;
+        for (int c : unique_coins) {
+            bool redundant = false;
+            for (int other : filtered_coins) {
+                if (c % other == 0) {
+                    redundant = true;
+                    break;
+                }
+            }
+            if (!redundant) {
+                filtered_coins.push_back(c);
+            }
+        }
+        
+        int n = filtered_coins.size();
+        
+        // Helper to compute Greatest Common Divisor
+        auto gcd = [](long long a, long long b) {
+            while (b) {
+                a %= b;
+                swap(a, b);
+            }
+            return a;
+        };
+
+        // Helper to compute Least Common Multiple with overflow check
+        auto lcm = [&](long long a, long long b) {
+            if (a == 0 || b == 0) return 0LL;
+            long long g = gcd(a, b);
+            if (a / g > 2e15 / b) return -1LL; // Prevent overflow
+            return (a / g) * b;
+        };
+
+        // Binary search bounds
+        long long low = 1, high = 2e15, ans = high;
+
+        while (low <= high) {
+            long long mid = low + (high - low) / 2;
+            long long count = 0;
+
+            // Inclusion-Exclusion over all non-empty subsets
+            int total_subsets = 1 << n;
+            for (int mask = 1; mask < total_subsets; ++mask) {
+                long long current_lcm = 1;
+                int bits = 0;
+                bool overflow = false;
+
+                for (int i = 0; i < n; ++i) {
+                    if ((mask >> i) & 1) {
+                        bits++;
+                        current_lcm = lcm(current_lcm, filtered_coins[i]);
+                        if (current_lcm == -1 || current_lcm > mid) {
+                            overflow = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!overflow) {
+                    long long multiples = mid / current_lcm;
+                    if (bits % 2 == 1) {
+                        count += multiples;
+                    } else {
+                        count -= multiples;
+                    }
+                }
+            }
+
+            if (count >= k) {
+                ans = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return ans;
+    }
+};
