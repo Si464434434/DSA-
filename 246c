@@ -1,0 +1,19 @@
+from itertools import accumulate
+from typing import List
+
+class Solution:
+    def stoneGameVIII(self, stones: List[int]) -> int:
+        n = len(stones)
+        
+        # Compute prefix sums
+        prefix = list(accumulate(stones))
+        
+        # Base case: when only 1 stone is left at the end of choices, 
+        # the last state value can be initialized with prefix[n-1]
+        res = prefix[n - 1]
+        
+        # Iterate backwards to find the optimal choice for the current player
+        for i in range(n - 1, 1, -1):
+            res = max(res, prefix[i - 1] - res)
+            
+        return res
