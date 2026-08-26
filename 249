@@ -1,0 +1,38 @@
+#include <string>
+#include <algorithm>
+
+class Solution {
+public:
+    std::string shortestBeautifulSubstring(std::string s, int k) {
+        int n = s.length();
+        std::string ans = "";
+        int l = 0, count = 0;
+
+        for (int r = 0; r < n; ++r) {
+            if (s[r] == '1') {
+                count++;
+            }
+
+            // Shrink the window from the left while maintaining k ones
+            while (count > k || (count == k && s[l] == '0')) {
+                if (s[l] == '1') {
+                    count--;
+                }
+                l++;
+            }
+
+            // If we have found a valid beautiful substring
+            if (count == k) {
+                std::string curr = s.substr(l, r - l + 1);
+                
+                // Update ans if curr is shorter, or same length and lexicographically smaller
+                if (ans == "" || curr.length() < ans.length() || 
+                    (curr.length() == ans.length() && curr < ans)) {
+                    ans = curr;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
