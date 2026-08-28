@@ -1,0 +1,73 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <functional>
+
+class Solution {
+public:
+    std::string lexPalindromicPermutation(std::string s, std::string target) {
+        int n = s.length();
+        std::vector<int> count(26, 0);
+        for (char c : s) {
+            count[c - 'a']++;
+        }
+
+        int oddCount = 0;
+        int oddChar = -1;
+        for (int i = 0; i < 26; ++i) {
+            if (count[i] % 2 != 0) {
+                oddCount++;
+                oddChar = i;
+            }
+        }
+
+        // A valid palindrome must have at most 1 odd frequency character (for odd n) or 0 (for even n)
+        if (oddCount > (n % 2)) return "";
+
+        int halfLength = n / 2;
+        
+        std::function<bool(int, bool, std::string&)> dfs = [&](int idx, bool isGreater, std::string& currentHalf) {
+            if (idx == halfLength) {
+                std::string full = currentHalf;
+                if (n % 2 != 0) {
+                    full += (char)('a' + oddChar);
+                }
+                std::string rev = currentHalf;
+                std::reverse(rev.begin(), rev.end());
+                full += rev;
+                return full > target;
+            }
+
+            int startChar = isGreater ? 0 : (target[idx] - 'a');
+            for (int c = startChar; c < 26; ++c) {
+                if (count[c] >= 2) {
+                    count[c] -= 2;
+                    currentHalf.push_back((char)('a' + c));
+                    
+                    bool nextGreater = isGreater || (c > (target[idx] - 'a'));
+                    if (dfs(idx + 1, nextGreater, currentHalf)) {
+                        return true;
+                    }
+                    
+                    currentHalf.pop_back();
+                    count[c] += 2;
+                }
+            }
+            return false;
+        };
+
+        std::string currentHalf = "";
+        if (dfs(0, false, currentHalf)) {
+            std::string res = currentHalf;
+            if (n % 2 != 0) {
+                res += (char)('a' + oddChar);
+            }
+            std::string rev = currentHalf;
+            std::reverse(rev.begin(), rev.end());
+            res += rev;
+            return res;
+        }
+
+        return "";
+    }
+};
