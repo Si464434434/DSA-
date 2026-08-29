@@ -1,0 +1,47 @@
+#include <vector>
+#include <numeric>
+#include <algorithm>
+
+class Solution {
+public:
+    std::vector<int> lexicographicallySmallestArray(std::vector<int>& nums, int limit) {
+        int n = nums.size();
+        
+        // Pair each element with its original index
+        std::vector<std::pair<int, int>> indexed_nums(n);
+        for (int i = 0; i < n; ++i) {
+            indexed_nums[i] = {nums[i], i};
+        }
+        
+        // Sort pairs by value
+        std::sort(indexed_nums.begin(), indexed_nums.end());
+        
+        std::vector<int> res(n);
+        int i = 0;
+        
+        while (i < n) {
+            int j = i;
+            // Find all contiguous elements in sorted array where difference <= limit
+            while (j + 1 < n && indexed_nums[j + 1].first - indexed_nums[j].first <= limit) {
+                j++;
+            }
+            
+            // Extract indices of the current connected component
+            std::vector<int> indices;
+            for (int k = i; k <= j; ++k) {
+                indices.push_back(indexed_nums[k].second);
+            }
+            
+            // Sort original indices to assign values in increasing order
+            std::sort(indices.begin(), indices.end());
+            
+            for (int k = 0; k < indices.size(); ++k) {
+                res[indices[k]] = indexed_nums[i + k].first;
+            }
+            
+            i = j + 1;
+        }
+        
+        return res;
+    }
+};
