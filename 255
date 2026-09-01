@@ -1,0 +1,102 @@
+ #include <vector>
+#include <string>
+#include <queue>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int minMoves(vector<string>& classroom, int energy) {
+        int m = classroom.size();
+        int n = classroom[0].size();
+        
+        int startX = -1, startY = -1;
+        vector<pair<int, int>> litters;
+        
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (classroom[i][j] == 'S') {
+                    startX = i;
+                    startY = j;
+                } else if (classroom[i][j] == 'L') {
+                    litters.push_back({i, j});
+                }
+            }
+        }
+        
+        int k = litters.size();
+        int fullMask = (1 << k) - 1;
+        
+        // Map each litter coordinate to its bit index
+        int litterMap[20][20];
+        memset(litterMap, -1, sizeof(litterMap));
+        for (int i = 0; i < k; ++i) {
+            litterMap[litters[i].first][litters[i].second] = i;
+        }
+        
+        // bestEnergy[x][y][mask] stores the max energy seen for this state
+        // max energy is up to 50, m,n up to 20, mask up to 1024
+        int bestEnergy[20][20][1024];
+        memset(bestEnergy, -1, sizeof(bestEnergy));
+        
+        struct State {
+            int x, y, mask, e, steps;
+        };
+        
+        queue<State> q;
+        int initialMask = 0;
+        if (litterMap[startX][startY] != -1) {
+            initialMask |= (1 << litterMap[startX][startY]);
+        }
+        
+        q.push({startX, startY, initialMask, energy, 0});
+        bestEnergy[startX][startY][initialMask] = energy;
+        
+        int dr[] = {-1, 1, 0, 0};
+        int dc[] = {0, 0, -1, 1};
+        
+        while (!q.empty()) {
+            State curr = q.front();
+            q.pop();
+            
+            if (curr.mask == fullMask) {
+                return curr.steps;
+            }
+            
+            for (int i = 0; i < 4; ++i) {
+                int nx = curr.x + dr[i];
+                int ny = curr.y + dc[i];
+                
+                if (nx < 0 || nx >= m || ny < 0 || ny >= n) continue;
+                if (classroom[nx][ny] == 'X') continue;
+                
+                int nextE = curr.e - 1;
+                if (nextE < 0) continue; // Cannot move if energy hits 0 unless on 'R' checked next
+                
+                int nextMask = curr.mask;
+                if (classroom[nx][ny] == 'L') {
+                    int idx = litterMap[nx][ny];
+                    if (idx != -1) {
+                        nextMask |= (1 << idx);
+                    }
+                }
+                
+                if (classroom[nx][ny] == 'R') {
+                    nextE = energy;
+                }
+                
+                // Pruning: if we have seen this (nx, ny, nextMask) with strictly greater or equal energy, skip
+                if (nextE <= bestEnergy[nx][ny][nextMask]) {
+                    continue;
+                }
+                
+                bestEnergy[nx][ny][nextMask] = nextE;
+                q.push({nx, ny, nextMask, nextE, curr.steps + 1});
+            }
+        }
+        
+        return -1;
+    }
+};
