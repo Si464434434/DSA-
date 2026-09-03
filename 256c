@@ -1,0 +1,49 @@
+#include <vector>
+#include <algorithm>
+
+class Solution {
+public:
+    bool uniformArray(std::vector<int>& nums1) {
+        int min_odd = 2e9;
+        
+        // Find the smallest odd element in nums1
+        for (int x : nums1) {
+            if (x % 2 != 0) {
+                min_odd = std::min(min_odd, x);
+            }
+        }
+        
+        // If there are no odd numbers at all, we can only form an all-even array if all are already even.
+        // Wait, if all numbers are even, they are already all-even.
+        bool all_even = true;
+        for (int x : nums1) {
+            if (x % 2 != 0) {
+                all_even = false;
+                break;
+            }
+        }
+        if (all_even) return true;
+        
+        // Check if we can make all elements even
+        // To make an odd element even, we must subtract min_odd, so the odd element must be > min_odd.
+        bool can_make_all_even = true;
+        for (int x : nums1) {
+            if (x % 2 != 0 && x <= min_odd) {
+                can_make_all_even = false;
+                break;
+            }
+        }
+        
+        // Check if we can make all elements odd
+        // To make an even element odd, we must subtract min_odd, so the even element must be > min_odd.
+        bool can_make_all_odd = true;
+        for (int x : nums1) {
+            if (x % 2 == 0 && x <= min_odd) {
+                can_make_all_odd = false;
+                break;
+            }
+        }
+        
+        return can_make_all_even || can_make_all_odd;
+    }
+};
