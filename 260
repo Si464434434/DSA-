@@ -1,0 +1,28 @@
+#include <string>
+#include <vector>
+
+class Solution {
+public:
+    int numDistinct(std::string s, std::string t) {
+        int m = s.length();
+        int n = t.length();
+        
+        // Using a 1D DP array for space optimization
+        // dp[j] represents the number of distinct subsequences of t[0...j-1]
+        std::vector<double> dp(n + 1, 0);
+        
+        // Empty string t can always be formed 1 way
+        dp[0] = 1;
+        
+        for (int i = 1; i <= m; ++i) {
+            // Traverse backwards to avoid overwriting values needed from the previous row
+            for (int j = n; j >= 1; --j) {
+                if (s[i - 1] == t[j - 1]) {
+                    dp[j] += dp[j - 1];
+                }
+            }
+        }
+        
+        return static_cast<int>(dp[n]);
+    }
+};
