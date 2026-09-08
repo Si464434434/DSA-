@@ -1,0 +1,21 @@
+class Solution {
+public:
+    int countCommas(int n) {
+        if (n < 1000) {
+            return 0;
+        }
+        
+        // Every number from 1,000 up to 999,999 has exactly 1 comma.
+        long long totalCommas = 0;
+        
+        long long range1_end = min(n, 999999);
+        totalCommas += 1LL * (range1_end - 1000 + 1) * 1;
+        
+        // 1,000,000 to n would have 2 commas each
+        if (n >= 1000000) {
+            totalCommas += 1LL * (n - 1000000 + 1) * 2; // (or +1 extra comma per number >= 10^6)
+        }
+        
+        return totalCommas;
+    }
+};
