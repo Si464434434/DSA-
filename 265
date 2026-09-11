@@ -1,0 +1,43 @@
+#include <vector>
+#include <unordered_map>
+
+class Solution {
+public:
+    int totalNumbers(std::vector<int>& digits) {
+        // Count the frequency of each digit in the input array
+        int count[10] = {0};
+        for (int d : digits) {
+            count[d]++;
+        }
+
+        int uniqueEvenCount = 0;
+
+        // Iterate through all possible 3-digit even numbers
+        for (int num = 100; num <= 998; num += 2) {
+            int h = num / 100;
+            int t = (num / 10) % 10;
+            int u = num % 10;
+
+            // Temporarily store frequencies needed for the current number
+            int needed[10] = {0};
+            needed[h]++;
+            needed[t]++;
+            needed[u]++;
+
+            // Check if we have enough of each digit to form 'num'
+            bool possible = true;
+            for (int i = 0; i < 10; ++i) {
+                if (needed[i] > count[i]) {
+                    possible = false;
+                    break;
+                }
+            }
+
+            if (possible) {
+                uniqueEvenCount++;
+            }
+        }
+
+        return uniqueEvenCount;
+    }
+};
