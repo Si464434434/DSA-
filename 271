@@ -1,0 +1,43 @@
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+
+class Solution {
+public:
+    int minSumOfLengths(std::vector<int>& arr, int target) {
+        int n = arr.size();
+        // min_len[i] will store the minimum length of a sub-array with sum = target 
+        // that ends at an index <= i.
+        std::vector<int> min_len(n, n + 1);
+        
+        std::unordered_map<int, int> prefix_sums;
+        prefix_sums[0] = -1; // To handle sub-arrays starting from index 0
+        
+        int current_sum = 0;
+        int ans = n + 1;
+        int best_so_far = n + 1;
+        
+        for (int i = 0; i < n; ++i) {
+            current_sum += arr[i];
+            int needed = current_sum - target;
+            
+            if (prefix_sums.count(needed)) {
+                int start = prefix_sums[needed];
+                int length = i - start;
+                
+                // If there is a valid non-overlapping sub-array before 'start'
+                if (start >= 0 && min_len[start] <= n) {
+                    ans = std::min(ans, length + min_len[start]);
+                }
+                
+                // Update the minimum length of a valid sub-array ending at or before index i
+                best_so_far = std::min(best_so_far, length);
+            }
+            
+            min_len[i] = best_so_far;
+            prefix_sums[current_sum] = i;
+        }
+        
+        return ans > n ? -1 : ans;
+    }
+};
