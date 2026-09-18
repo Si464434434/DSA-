@@ -1,0 +1,63 @@
+ #include <vector>
+#include <string>
+#include <algorithm>
+#include <climits>
+
+class Solution {
+public:
+    vector<string> maxNumOfSubstrings(string s) {
+        int n = s.length();
+        vector<int> first(26, -1);
+        vector<int> last(26, -1);
+
+        for (int i = 0; i < n; ++i) {
+            int c = s[i] - 'a';
+            if (first[c] == -1) {
+                first[c] = i;
+            }
+            last[c] = i;
+        }
+
+        auto get_valid_substring_range = [&](int i) {
+            int right = last[s[i] - 'a'];
+            int j = i;
+            while (j <= right) {
+                int c = s[j] - 'a';
+                if (first[c] < i) {
+                    return -1;
+                }
+                right = max(right, last[c]);
+                j++;
+            }
+            return right;
+        };
+
+        vector<pair<int, int>> intervals;
+        for (int i = 0; i < n; ++i) {
+            if (i == first[s[i] - 'a']) {
+                int end = get_valid_substring_range(i);
+                if (end != -1) {
+                    intervals.push_back({i, end});
+                }
+            }
+        }
+
+        // Greedily select non-overlapping intervals with the earliest end times
+        sort(intervals.begin(), intervals.end(), [](const pair<int, int>& a, const pair<int, int>& b) {
+            return a.second < b.second;
+        });
+
+        vector<string> result;
+        int prev_end = -1;
+        for (const auto& interval : intervals) {
+            int start = interval.first;
+            int end = interval.second;
+            if (start > prev_end) {
+                result.push_back(s.substr(start, end - start + 1));
+                prev_end = end;
+            }
+        }
+
+        return result;
+    }
+};
