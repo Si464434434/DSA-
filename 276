@@ -1,0 +1,124 @@
+#include <vector>
+
+class Solution {
+public:
+    struct Node {
+        std::vector<long long> pref_count; // frequency of prefix product remainders in this range
+        long long total_prod_rem;          // total product remainder of this range
+        int len;                           // length of the range
+
+        Node(int k = 1) : pref_count(k, 0), total_prod_rem(1), len(0) {}
+    };
+
+    int K;
+    std::vector<Node> tree;
+
+    void combine(int node, int k) {
+        const auto& left = tree[2 * node];
+        const auto& right = tree[2 * node + 1];
+        auto& curr = tree[node];
+
+        curr.len = left.len + right.len;
+        curr.total_prod_rem = (left.total_prod_rem * right.total_prod_rem) % k;
+
+        for (int i = 0; i < k; ++i) {
+            curr.pref_count[i] = left.pref_count[i];
+        }
+
+        // Prefixes formed by taking the whole left child and extending into the right child
+        for (int r = 0; r < k; ++r) {
+            int combined_rem = (left.total_prod_rem * r) % k;
+            curr.pref_count[combined_rem] += right.pref_count[r];
+        }
+    }
+
+    void build(const std::vector<int>& nums, int node, int l, int r, int k) {
+        if (l == r) {
+            tree[node] = Node(k);
+            tree[node].len = 1;
+            long long val = nums[l] % k;
+            tree[node].total_prod_rem = val;
+            tree[node].pref_count[val] = 1;
+            return;
+        }
+        int mid = l + (r - l) / 2;
+        build(nums, 2 * node, l, mid, k);
+        build(nums, 2 * node + 1, mid + 1, r, k);
+        combine(node, k);
+    }
+
+    void update(int node, int l, int r, int idx, int val, int k) {
+        if (l == r) {
+            tree[node] = Node(k);
+            tree[node].len = 1;
+            long long v = val % k;
+            tree[node].total_prod_rem = v;
+            tree[node].pref_count[v] = 1;
+            return;
+        }
+        int mid = l + (r - l) / 2;
+        if (idx <= mid) update(2 * node, l, mid, idx, val, k);
+        else update(2 * node + 1, mid + 1, r, idx, val, k);
+        combine(node, k);
+    }
+
+    // Query function to collect prefix product counts for the suffix range [start, n-1]
+    void query(int node, int l, int r, int ql, int qr, long long& current_prefix_rem, std::vector<long long>& freq, int k) {
+        if (ql > r || qr < l) return;
+        if (ql <= l && r <= qr) {
+            const auto& node_pref = tree[node].pref_count;
+            for (int r_rem = 0; r_rem < k; ++r_rem) {
+                if (node_pref[r_rem] > 0) {
+                    int target = (current_prefix_rem * r_rem) % k;
+                    freq[target] += node_pref[r_rem];
+                }
+            }
+            current_prefix_rem = (current_prefix_rem * tree[node].total_prod_rem) % k;
+            return;
+        }
+        int mid = l + (r - l) / 2;
+        query(2 * node, l, mid, ql, qr, current_prefix_rem, freq, k);
+        query(2 * node + 1, mid + 1, r, ql, qr, current_prefix_rem, freq, k);
+    }
+
+    std::vector<int> resultArray(std::vector<int>& nums, int k, std::vector<std::vector<int>>& queries) {
+        int n = nums.size();
+        K = k;
+
+        if (k == 1) {
+            std::vector<int> ans;
+            for (const auto& q : queries) {
+                int idx = q[0];
+                int val = q[1];
+                int start = q[2];
+                nums[idx] = val;
+                ans.push_back(std::max(0, n - start));
+            }
+            return ans;
+        }
+
+        tree.assign(4 * n, Node(k));
+        build(nums, 1, 0, n - 1, k);
+
+        std::vector<int> ans;
+        ans.reserve(queries.size());
+
+        for (const auto& q : queries) {
+            int idx = q[0];
+            int val = q[1] % k;
+            int start = q[2];
+            int x = q[3] % k;
+
+            update(1, 0, n - 1, idx, val, k);
+            nums[idx] = val;
+
+            long long current_prefix_rem = 1;
+            std::vector<long long> freq(k, 0);
+            query(1, 0, n - 1, start, n - 1, current_prefix_rem, freq, k);
+
+            ans.push_back(freq[x]);
+        }
+
+        return ans;
+    }
+};
