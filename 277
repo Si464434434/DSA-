@@ -1,0 +1,37 @@
+ 
+ #include <string>
+#include <vector>
+
+class Solution {
+public:
+    std::string convert(std::string s, int numRows) {
+        // Base case: if numRows is 1 or string length is less than numRows
+        if (numRows == 1 || s.length() <= numRows) {
+            return s;
+        }
+
+        std::vector<std::string> rows(numRows);
+        int currentRow = 0;
+        bool goingDown = false;
+
+        for (char c : s) {
+            rows[currentRow] += c;
+
+            // Reverse direction if we hit the top or bottom row
+            if (currentRow == 0 || currentRow == numRows - 1) {
+                goingDown = !goingDown;
+            }
+
+            // Move to the next row
+            currentRow += goingDown ? 1 : -1;
+        }
+
+        // Combine all rows into a single string
+        std::string result = "";
+        for (const std::string& row : rows) {
+            result += row;
+        }
+
+        return result;
+    }
+};
