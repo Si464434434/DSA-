@@ -1,0 +1,50 @@
+class Solution {
+public:
+    int m, n;
+    vector<vector<vector<int>>> memo;
+
+    bool dfs(int r, int c, int balance, const vector<vector<char>>& grid) {
+        // If out of bounds or balance is negative, invalid path
+        if (r >= m || c >= n || balance < 0) return false;
+        
+        // Update balance for the current cell
+        if (grid[r][c] == '(') {
+            balance++;
+        } else {
+            balance--;
+        }
+        
+        // If balance became negative after updating, invalid
+        if (balance < 0) return false;
+        
+        // If we reached the bottom-right cell
+        if (r == m - 1 && c == n - 1) {
+            return balance == 0;
+        }
+        
+        // Check memoization table
+        if (memo[r][c][balance] != -1) {
+            return memo[r][c][balance];
+        }
+        
+        // Move down or right
+        bool down = dfs(r + 1, c, balance, grid);
+        bool right = dfs(r, c + 1, balance, grid);
+        
+        return memo[r][c][balance] = (down || right);
+    }
+
+    bool hasValidPath(vector<vector<char>>& grid) {
+        m = grid.size();
+        n = grid[0].size();
+        
+        // Optimization: total length of path must be even for a valid parentheses string
+        if ((m + n - 1) % 2 != 0) return false;
+        
+        // memo[r][c][balance] initialized to -1 (unvisited)
+        // Max possible path length is m + n - 1, so max balance is m + n
+        memo = vector<vector<vector<int>>>(m, vector<vector<int>>(n, vector<int>(m + n + 1, -1)));
+        
+        return dfs(0, 0, 0, grid);
+    }
+};
