@@ -1,0 +1,24 @@
+#include <vector>
+#include <string>
+
+class Solution {
+public:
+    std::vector<int> maxDepthAfterSplit(std::string seq) {
+        std::vector<int> answer(seq.length());
+        int depth = 0;
+
+        for (int i = 0; i < seq.length(); ++i) {
+            if (seq[i] == '(') {
+                depth++;
+                // Assign '(' to group 0 if depth is odd, group 1 if depth is even
+                answer[i] = 1 - (depth % 2);
+            } else {
+                // Assign ')' matching its corresponding '(' depth
+                answer[i] = 1 - (depth % 2);
+                depth--;
+            }
+        }
+
+        return answer;
+    }
+};
