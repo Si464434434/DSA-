@@ -1,0 +1,37 @@
+#include <string>
+#include <stack>
+#include <unordered_map>
+
+class Solution {
+public:
+    bool isValid(std::string s) {
+        std::stack<char> st;
+        // Mapping of closing brackets to their corresponding opening brackets
+        std::unordered_map<char, char> mapping = {
+            {')', '('},
+            {'}', '{'},
+            {']', '['}
+        };
+        
+        for (char c : s) {
+            // If the character is a closing bracket
+            if (mapping.find(c) != mapping.end()) {
+                char top_element = st.empty() ? '#' : st.top();
+                if (!st.empty()) {
+                    st.pop();
+                }
+                
+                // If the mapped opening bracket doesn't match the stack's top
+                if (mapping[c] != top_element) {
+                    return false;
+                }
+            } else {
+                // If it's an opening bracket, push it onto the stack
+                st.push(c);
+            }
+        }
+        
+        // If the stack is empty, all brackets were matched correctly
+        return st.empty();
+    }
+};
