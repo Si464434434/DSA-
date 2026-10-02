@@ -1,0 +1,27 @@
+class Solution {
+private:
+    void backtrack(int open, int close, int n, string current, vector<string>& result) {
+        // Base case: if the current string length is 2 * n, we have a valid combination
+        if (current.length() == 2 * n) {
+            result.push_back(current);
+            return;
+        }
+        
+        // Add an opening parenthesis if we haven't used all n of them
+        if (open < n) {
+            backtrack(open + 1, close, n, current + "(", result);
+        }
+        
+        // Add a closing parenthesis if it won't violate the well-formed property
+        if (close < open) {
+            backtrack(open, close + 1, n, current + ")", result);
+        }
+    }
+
+public:
+    vector<string> generateParenthesis(int n) {
+        vector<string> result;
+        backtrack(0, 0, n, "", result);
+        return result;
+    }
+};
