@@ -1,0 +1,65 @@
+class Solution {
+public:
+    vector<vector<int>> formCoils(int n) {
+        int N = 4 * n;
+
+        vector<vector<int>> mat(N, vector<int>(N));
+
+        int val = 1;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                mat[i][j] = val++;
+            }
+        }
+
+        vector<int> coil1, coil2;
+
+        // First coil
+        int top = 0, bottom = N - 1;
+        int left = 0, right = N - 1;
+
+        while (top <= bottom && left <= right) {
+            for (int i = top; i <= bottom; i++)
+                coil1.push_back(mat[i][left]);
+            left++;
+
+            for (int j = left; j <= right; j++)
+                coil1.push_back(mat[bottom][j]);
+            bottom--;
+
+            for (int i = bottom; i >= top; i--)
+                coil1.push_back(mat[i][right]);
+            right--;
+
+            for (int j = right; j >= left; j--)
+                coil1.push_back(mat[top][j]);
+            top++;
+        }
+
+        // Second coil
+        top = 0;
+        bottom = N - 1;
+        left = 0;
+        right = N - 1;
+
+        while (top <= bottom && left <= right) {
+            for (int i = bottom; i >= top; i--)
+                coil2.push_back(mat[i][right]);
+            right--;
+
+            for (int j = right; j >= left; j--)
+                coil2.push_back(mat[top][j]);
+            top++;
+
+            for (int i = top; i <= bottom; i++)
+                coil2.push_back(mat[i][left]);
+            left++;
+
+            for (int j = left; j <= right; j++)
+                coil2.push_back(mat[bottom][j]);
+            bottom--;
+        }
+
+        return {coil1, coil2};
+    }
+};
