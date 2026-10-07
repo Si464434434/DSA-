@@ -1,0 +1,46 @@
+#include <vector>
+#include <string>
+#include <unordered_set>
+#include <queue>
+
+class Solution {
+public:
+    vector<string> removeInvalidParentheses(string s) {
+        auto isValid = [](const string& str) {
+            int count = 0;
+            for (char c : str) {
+                if (c == '(') count++;
+                else if (c == ')') {
+                    count--;
+                    if (count < 0) return false;
+                }
+            }
+            return count == 0;
+        };
+
+        unordered_set<string> current_level = {s};
+        vector<string> ans;
+        
+        while (true) {
+            for (const string& str : current_level) {
+                if (isValid(str)) {
+                    ans.push_back(str);
+                }
+            }
+            
+            if (!ans.empty()) {
+                return ans;
+            }
+            
+            unordered_set<string> next_level;
+            for (const string& str : current_level) {
+                for (int i = 0; i < str.length(); ++i) {
+                    if (str[i] == '(' || str[i] == ')') {
+                        next_level.insert(str.substr(0, i) + str.substr(i + 1));
+                    }
+                }
+            }
+            current_level = move(next_level);
+        }
+    }
+};
