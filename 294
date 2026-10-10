@@ -1,0 +1,19 @@
+#include <iostream>
+using namespace std;
+
+class Solution {
+public:
+    bool balancePan(long long a, long long b) {
+        while (b > 0) {
+            long long rem = b % a;
+            if (rem == 0 || rem == 1) {
+                b /= a;
+            } else if (rem == a - 1) {
+                b = (b + 1) / a;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+};
