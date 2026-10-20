@@ -1,0 +1,69 @@
+#include <vector>
+#include <algorithm>
+#include <numeric>
+
+class Solution {
+public:
+    int sortableIntegers(std::vector<int>& nums) {
+        int n = nums.size();
+        int totalSum = 0;
+
+        // Function to check if a particular divisor k is sortable
+        auto check = [&](int k) {
+            // Check if each subarray of length k is internally sorted
+            // and condition between adjacent subarrays holds.
+            std::vector<int> mins(n / k), maxs(n / k);
+            for (int i = 0; i < n / k; ++i) {
+                int start = i * k;
+                // Check if the subarray is sorted cyclically
+                // A subarray can be rotated to be sorted iff it has at most one "drop"
+                int drops = 0;
+                int min_val = nums[start], max_val = nums[start];
+                for (int j = 0; j < k; ++j) {
+                    int curr = nums[start + j];
+                    int next = nums[start + (j + 1) % k];
+                    if (curr > next) {
+                        drops++;
+                    }
+                }
+                if (drops > 1) return false;
+
+                // Find min and max of this rotated subarray
+                min_val = nums[start];
+                max_val = nums[start];
+                for (int j = 1; j < k; ++j) {
+                    min_val = std::min(min_val, nums[start + j]);
+                    max_val = std::max(max_val, nums[start + j]);
+                }
+                mins[i] = min_val;
+                maxs[i] = max_val;
+            }
+
+            // Check if max of subarray i <= min of subarray i+1
+            for (int i = 0; i < (n / k) - 1; ++i) {
+                if (maxs[i] > mins[i + 1]) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        // Find all divisors of n
+        for (int k = 1; k * k <= n; ++k) {
+            if (n % k == 0) {
+                if (check(k)) {
+                    totalSum += k;
+                }
+                int other = n / k;
+                if (other != k) {
+                    if (check(other)) {
+                        totalSum += other;
+                    }
+                }
+            }
+        }
+
+        return totalSum;
+    }
+};
