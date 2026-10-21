@@ -1,0 +1,46 @@
+#include <string>
+#include <algorithm>
+
+class Solution {
+public:
+    int minOperations(string s) {
+        int n = s.length();
+        
+        // Case 1: Already sorted
+        if (is_sorted(s.begin(), s.end())) {
+            return 0;
+        }
+        
+        // Case 2: Length 2 cannot be fixed if not sorted
+        if (n == 2) {
+            return -1;
+        }
+        
+        // Find min and max characters
+        char mn = *min_element(s.begin(), s.end());
+        char mx = *max_element(s.begin(), s.end());
+        
+        // Case 3: 1 operation if the smallest is at the start or largest is at the end
+        if (s[0] == mn || s[n - 1] == mx) {
+            return 1;
+        }
+        
+        // Check if transformation is possible at all
+        // If the string consists entirely of equal characters (already sorted, handled)
+        // If not sortable under general constraints
+        
+        // Case 4: 3 operations if max is uniquely at start and min is uniquely at end
+        // Count frequencies to ensure unique placement if needed, or check logic
+        int max_count = count(s.begin(), s.end(), mx);
+        int min_count = count(s.begin(), s.end(), mn);
+        
+        if (s[0] == mx && max_count == 1 && s[n - 1] == mn && min_count == 1) {
+            return 3;
+        }
+        
+        // Check general reachability to return -1 if impossible
+        // (If we cannot achieve sorting, e.g., certain structural deadlocks)
+        // For general cases not caught above, 2 operations work:
+        return 2;
+    }
+};
