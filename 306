@@ -1,0 +1,52 @@
+#include <vector>
+#include <algorithm>
+#include <climits>
+
+class Solution {
+public:
+    int minOperations(std::vector<int>& nums) {
+        int n = nums.size();
+        if (n == 1) return 0;
+
+        // Find the position of 0
+        int zero = -1;
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] == 0) {
+                zero = i;
+                break;
+            }
+        }
+
+        auto check = [&](int step) {
+            for (int i = 1; i < n; ++i) {
+                int prev = (zero + (i - 1) * step) % n;
+                if (prev < 0) prev += n;
+                int curr = (zero + i * step) % n;
+                if (curr < 0) curr += n;
+                
+                if (nums[prev] > nums[curr]) return false;
+            }
+            return true;
+        };
+
+        int ans = INT_MAX;
+
+        // Check if the order is increasing (step = 1)
+        if (check(1)) {
+            // Option 1: Direct left-rotation by `zero` positions
+            ans = std::min(ans, zero);
+            // Option 2: Reverse, rotate, then reverse back
+            ans = std::min(ans, n - zero + 2);
+        }
+
+        // Check if the order is decreasing (step = -1)
+        if (check(-1)) {
+            // Option 3: Rotate, then reverse
+            ans = std::min(ans, zero + 2);
+            // Option 4: Reverse, then rotate
+            ans = std::min(ans, n - zero);
+        }
+
+        return ans == INT_MAX ? -1 : ans;
+    }
+};
