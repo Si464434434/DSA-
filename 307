@@ -1,0 +1,23 @@
+class Solution {
+public:
+    int sortPermutation(vector<int>& nums) {
+        int n = nums.size();
+        int max_k = -1;
+        bool is_sorted = true;
+
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] != i) {
+                is_sorted = false;
+                // If an element is out of place, its value or the difference 
+                // might dictate the bitmask k. 
+                if (max_k == -1) {
+                    max_k = nums[i];
+                } else {
+                    max_k &= nums[i];
+                }
+            }
+        }
+
+        return is_sorted ? 0 : max_k;
+    }
+};
