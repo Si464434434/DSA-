@@ -1,0 +1,36 @@
+class Solution {
+public:
+    int countDaysTogether(string arriveAlice, string leaveAlice, string arriveBob, string leaveBob) {
+        // Convert all dates to day numbers of the year
+        int aliceArrival = convertToDays(arriveAlice);
+        int aliceLeave = convertToDays(leaveAlice);
+        int bobArrival = convertToDays(arriveBob);
+        int bobLeave = convertToDays(leaveBob);
+        
+        // Find the overlap range
+        int latestArrival = max(aliceArrival, bobArrival);
+        int earliestLeave = min(aliceLeave, bobLeave);
+        
+        // Calculate overlapping days
+        if (latestArrival <= earliestLeave) {
+            return earliestLeave - latestArrival + 1;
+        }
+        
+        return 0;
+    }
+
+private:
+    int convertToDays(string date) {
+        vector<int> daysInMonths = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        
+        int month = stoi(date.substr(0, 2));
+        int day = stoi(date.substr(3, 2));
+        
+        int totalDays = day;
+        for (int i = 0; i < month - 1; ++i) {
+            totalDays += daysInMonths[i];
+        }
+        
+        return totalDays;
+    }
+};
