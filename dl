@@ -1,0 +1,66 @@
+#include <vector>
+#include <queue>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> busiestServers(int k, vector<int>& arrival, vector<int>& load) {
+        // Min-heap to store (end_time, server_id) of busy servers
+        priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> busyServers;
+        
+        // Ordered set to store indices of available servers
+        set<int> availableServers;
+        for (int i = 0; i < k; ++i) {
+            availableServers.insert(i);
+        }
+        
+        vector<int> requestCount(k, 0);
+        int maxRequests = 0;
+        
+        for (int i = 0; i < arrival.size(); ++i) {
+            long long currTime = arrival[i];
+            long long duration = load[i];
+            
+            // Free up servers that have finished their tasks by the current arrival time
+            while (!busyServers.empty() && busyServers.top().first <= currTime) {
+                availableServers.insert(busyServers.top().second);
+                busyServers.pop();
+            }
+            
+            // If all servers are busy, drop the request
+            if (availableServers.empty()) {
+                continue;
+            }
+            
+            // Find the preferred server (i % k) or the next available one
+            int target = i % k;
+            auto it = availableServers.lower_bound(target);
+            if (it == availableServers.end()) {
+                it = availableServers.begin(); // Wrap around to 0
+            }
+            
+            int assignedServer = *it;
+            availableServers.erase(it);
+            
+            // Assign the task to the chosen server
+            requestCount[assignedServer]++;
+            maxRequests = max(maxRequests, requestCount[assignedServer]);
+            
+            // Push into busy servers heap with its release time
+            busyServers.push({currTime + duration, assignedServer});
+        }
+        
+        // Collect all servers that handled the maximum number of requests
+        vector<int> result;
+        for (int i = 0; i < k; ++i) {
+            if (requestCount[i] == maxRequests) {
+                result.push_back(i);
+            }
+        }
+        
+        return result;
+    }
+};
