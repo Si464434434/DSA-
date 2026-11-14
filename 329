@@ -1,0 +1,28 @@
+#include <vector>
+#include <numeric>
+#include <algorithm>
+#include <climits>
+
+class Solution {
+public:
+    int minimumSumSubarray(std::vector<int>& nums, int l, int r) {
+        int minSum = INT_MAX;
+        int n = nums.size();
+        
+        // Iterate over all possible starting positions
+        for (int i = 0; i < n; ++i) {
+            int currentSum = 0;
+            // Extend the subarray length from l to r
+            for (int j = i; j < n && (j - i + 1) <= r; ++j) {
+                currentSum += nums[j];
+                // Check if length is at least l and sum is positive
+                if ((j - i + 1) >= l && currentSum > 0) {
+                    minSum = std::min(minSum, currentSum);
+                }
+            }
+        }
+        
+        // If minSum wasn't updated, return -1
+        return (minSum == INT_MAX) ? -1 : minSum;
+    }
+};
