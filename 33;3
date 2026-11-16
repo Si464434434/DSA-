@@ -1,0 +1,31 @@
+#include <string>
+#include <numeric>
+
+class Solution {
+public:
+    string digitSum(string s, int k) {
+        // Repeat the process as long as the length of s is greater than k
+        while (s.length() > k) {
+            string new_s = "";
+            
+            // Divide s into consecutive groups of size k
+            for (int i = 0; i < s.length(); i += k) {
+                string group = s.substr(i, k);
+                
+                // Calculate the sum of all digits in the group
+                int current_sum = 0;
+                for (char digit : group) {
+                    current_sum += (digit - '0');
+                }
+                
+                // Append the string representation of the sum to the new string
+                new_s += to_string(current_sum);
+            }
+            
+            // Update s for the next round
+            s = new_s;
+        }
+        
+        return s;
+    }
+};
