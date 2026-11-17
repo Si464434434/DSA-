@@ -1,0 +1,70 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+private:
+    // Helper to find minimum changes to make s[L...R] a palindrome
+    int minChangesPalindrome(const string& s, int L, int R) {
+        int changes = 0;
+        while (L < R) {
+            if (s[L] != s[R]) {
+                changes++;
+            }
+            L++;
+            R--;
+        }
+        return changes;
+    }
+
+public:
+    int minimumChanges(string s, int k) {
+        int n = s.length();
+        
+        // cost[i][j] stores min changes to make s[i...j] a semi-palindrome
+        vector<vector<int>> cost(n, vector<int>(n, 1e9));
+        
+        // Step 1: Precompute costs for all substrings
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                int len = j - i + 1;
+                int min_c = 1e9;
+                
+                // Check all proper divisors d of len
+                for (int d = 1; d < len; ++d) {
+                    if (len % d == 0) {
+                        int current_cost = 0;
+                        // For each group determined by divisor d
+                        for (int start = 0; start < d; ++start) {
+                            string group = "";
+                            for (int idx = i + start; idx <= j; idx += d) {
+                                group += s[idx];
+                            }
+                            current_cost += minChangesPalindrome(group, 0, group.length() - 1);
+                        }
+                        min_c = min(min_c, current_cost);
+                    }
+                }
+                cost[i][j] = min_c;
+            }
+        }
+        
+        // Step 2: DP to partition string into k semi-palindromes
+        // dp[i][parts] = min changes to partition s[i...n-1] into 'parts' parts
+        vector<vector<int>> dp(n + 1, vector<int>(k + 1, 1e9));
+        dp[n][0] = 0;
+        
+        for (int parts = 1; parts <= k; ++parts) {
+            for (int i = 0; i < n; ++i) {
+                // Try all possible cut points j for the current part s[i...j]
+                // Each semi-palindrome must have length at least 2
+                for (int j = i + 1; j < n; ++j) {
+                    if (dp[j + 1][parts - 1] != 1e9) {
+                        dp[i][parts] = min(dp[i][parts], cost[i][j] + dp[j + 1][parts - 1]);
+                    }
+                }
+            }
+        }
+        
+        return dp[0][k];
+    }
+};
