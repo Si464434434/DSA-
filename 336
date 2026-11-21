@@ -1,0 +1,53 @@
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findSubtreeSizes(vector<int>& parent, string s) {
+        int n = static_cast<int>(parent.size());
+        vector<vector<int>> orig_adj(n);
+        for (int i = 1; i < n; ++i) {
+            orig_adj[parent[i]].push_back(i);
+        }
+
+        // Track the closest ancestor seen on the current root-to-node path for each letter.
+        vector<vector<int>> last_seen(26);
+        vector<int> new_parent = parent;
+
+        auto dfs_reparent = [&](auto& self, int u) -> void {
+            int c = s[u] - 'a';
+            if (!last_seen[c].empty()) {
+                new_parent[u] = last_seen[c].back();
+            }
+            last_seen[c].push_back(u);
+
+            for (int v : orig_adj[u]) {
+                self(self, v);
+            }
+
+            last_seen[c].pop_back();
+        };
+
+        dfs_reparent(dfs_reparent, 0);
+
+        // Build the modified tree and compute subtree sizes.
+        vector<vector<int>> new_adj(n);
+        for (int i = 1; i < n; ++i) {
+            new_adj[new_parent[i]].push_back(i);
+        }
+
+        vector<int> answer(n, 1);
+        auto dfs_size = [&](auto& self, int u) -> int {
+            int sz = 1;
+            for (int v : new_adj[u]) {
+                sz += self(self, v);
+            }
+            return answer[u] = sz;
+        };
+
+        dfs_size(dfs_size, 0);
+        return answer;
+    }
+};
