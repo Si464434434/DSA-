@@ -1,0 +1,42 @@
+#include <algorithm>
+#include <numeric>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxLength(vector<int>& nums) {
+        int n = static_cast<int>(nums.size());
+        int ans = 1;
+
+        for (int l = 0; l < n; ++l) {
+            long long prod = 1;
+            long long g = 0;
+            long long lcm_val = 1;
+
+            for (int r = l; r < n; ++r) {
+                long long x = nums[r];
+
+                // Guard against overflow on prod
+                if (prod > LLONG_MAX / x) {
+                    break;
+                }
+                prod *= x;
+                g = (r == l) ? x : std::gcd(g, x);
+
+                long long step_gcd = std::gcd(lcm_val, x);
+                if (lcm_val > LLONG_MAX / (x / step_gcd)) {
+                    break;
+                }
+                lcm_val = (lcm_val / step_gcd) * x;
+
+                if (prod == lcm_val * g) {
+                    ans = max(ans, r - l + 1);
+                }
+            }
+        }
+
+        return ans;
+    }
+};
